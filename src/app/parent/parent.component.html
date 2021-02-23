@@ -1,0 +1,42 @@
+<div class="create-panel data-form">
+
+  <h2 class="title">Create New Types</h2>
+
+  <mat-card class="mat-elevation-z5">
+    <h3>Add Types</h3>
+    <div class="add-types-form" [formGroup]="form">
+
+      <ng-container formArrayName="children">
+        <ng-container *ngFor="let child of (data$ | async).controls; let i = index">
+          <div class="form-row" [formGroup]="child">
+
+            <mat-form-field appearance="fill">
+              <input matInput formControlName="length" (blur)="onBlurSave(i, child.value)" placeholder="Length">
+            </mat-form-field>
+            <mat-form-field appearance="fill">
+              <input matInput formControlName="width" (blur)="onBlurSave(i, child.value)" placeholder="Width">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-select formControlName="type" (blur)="onBlurSave(i, child.value)" placeholder="Type">
+                <mat-option value="box">Box</mat-option>
+                <mat-option value="bag">Bag</mat-option>
+                <mat-option value="tupperware">Tupperware</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-icon class="delete-btn" (click)="deleteChild(i)">delete_forever</mat-icon>
+            <mat-icon class="delete-btn" (click)="cancelChild(i)">clear</mat-icon>
+            <mat-icon class="delete-btn" (click)="editChild(child)">create</mat-icon>
+          </div>
+        </ng-container>
+      </ng-container>
+
+
+
+      <button mat-mini-fab (click)="addChild()">
+        <mat-icon class="add-btn">add</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+</div>
