@@ -1,0 +1,36 @@
+
+.add-types-form {
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+}
+
+mat-form-field {
+  margin-right: 10px;
+}
+
+.delete-btn {
+  cursor:pointer;
+
+}
+
+.data-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.stepper-buttons {
+  margin-top: 10px;
+}
+
+
+.stepper-buttons button{
+  margin-right: 5px;
+}

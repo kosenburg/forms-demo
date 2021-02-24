@@ -26,11 +26,13 @@ import {MatNativeDateModule} from '@angular/material/core';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDatepickerModule} from '@angular/material/datepicker';
+import { GrandparentComponent } from './grandparent/grandparent.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ParentComponent
+    ParentComponent,
+    GrandparentComponent
   ],
   imports: [
     BrowserModule,

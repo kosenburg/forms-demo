@@ -1,0 +1,9 @@
+<div class="create-panel data-form">
+
+  <h2 class="title">Create New Types</h2>
+
+  <mat-card class="mat-elevation-z5">
+    <h3>Add Types</h3>
+    <app-parent (outputData)="updateData($event)" [data]="existingData$ | async"></app-parent>
+  </mat-card>
+</div>

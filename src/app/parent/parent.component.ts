@@ -1,8 +1,8 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, Validators} from '@angular/forms';
 import {DataService} from '../services/data.service';
 import {Observable, Subscription} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {filter, map, tap} from 'rxjs/operators';
 import {TypeModel} from '../models/type.model';
 import {DataTypeModel} from '../models/data-type.model';
 
@@ -11,30 +11,45 @@ import {DataTypeModel} from '../models/data-type.model';
   templateUrl: './parent.component.html',
   styleUrls: ['./parent.component.css']
 })
-export class ParentComponent implements OnInit , OnDestroy{
+export class ParentComponent implements OnInit {
 
-  form = this.fb.group({
-    children: this.fb.array([])
-  });
+  @Input()
+  data: DataTypeModel[];
 
-  data$: Observable<FormArray>;
+  @Output()
+  outputData = new EventEmitter<DataTypeModel[]>();
 
+  form = this.fb.group({});
 
-  constructor(private fb: FormBuilder, private dataService: DataService) { }
+  constructor(private fb: FormBuilder) { }
 
   ngOnInit(): void {
-    this.data$ = this.dataService.getExistingData$()
-      .pipe(
-        map(val => {
-          return val.map(dataModel => this.fb.group({
-            length: [{value: dataModel.length, disabled: true}, [Validators.required]],
-            width: [{value: dataModel.width, disabled: true}, [Validators.required]],
-            type: [{ value: dataModel.type, disabled: true}, [Validators.required]]
-          }));
-        }),
-        map(val => this.fb.array(val)),
-        tap(val => this.form.addControl('children', val))
-      );
+    if (this.data) {
+      const controls = this.fb.array(
+        this.data.map(dataModel => this.fb.group({
+          length: [{value: dataModel.length, disabled: true}, [
+            Validators.required,
+            Validators.min(1),
+            Validators.pattern('^[0-9]*$')
+          ]],
+          width: [{value: dataModel.width, disabled: true}, [
+            Validators.required,
+            Validators.min(1),
+            Validators.pattern('[0-9]+')
+          ]],
+          type: [{ value: dataModel.type, disabled: true}, [Validators.required]]})));
+
+      this.form.addControl('children', controls);
+      this.form.valueChanges
+        .pipe(
+          tap(val => console.log(this.form.valid)),
+          filter(val => this.form.valid && val.children),
+          map(val => val.children)
+        )
+        .subscribe(console.log);
+    }
+
+
   }
 
   get children(): FormArray {
@@ -42,32 +57,33 @@ export class ParentComponent implements OnInit , OnDestroy{
   }
 
   addChild(): void {
+    this.children.disable({emitEvent: false});
 
-    this.dataService.addData({
-      length: 0,
-      width: 0,
-      type: TypeModel.BAG
+    const tempControl = this.fb.group({
+      length: [0, [Validators.required]],
+      width: [0, [Validators.required]],
+      type: [0, [Validators.required]]
     });
 
+    this.children.push(tempControl);
   }
 
   deleteChild(i: number): void {
-    this.dataService.removeData(i);
+    this.children.removeAt(i);
   }
 
   cancelChild(i: number): void {
-    this.dataService.removeData(i);
+    this.deleteChild(i);
   }
 
   editChild(control: AbstractControl): void {
-    control.enable();
+    control.enable({emitEvent: false});
   }
 
-  onBlurSave(index: number, control: DataTypeModel): void {
-    console.log(control);
-    this.dataService.updateData(index, control);
+  onBlurSave(index: number, control: AbstractControl): void {
+    console.log(control.value);
+    this.children.setControl(index, control);
+    this.outputData.emit(control.value);
   }
 
-  ngOnDestroy(): void {
-  }
 }
